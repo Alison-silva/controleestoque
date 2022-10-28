@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"com.alison.controleestoque.model"})
-@ComponentScan(basePackages = {"com.*"})
-@EnableJpaRepositories(basePackages = {"com.alison.controleestoque.repositories"})
+@EntityScan(basePackages = { "com.alison.controleestoque.model" })
+@ComponentScan(basePackages = { "com.*" })
+@EnableJpaRepositories(basePackages = { "com.alison.controleestoque.repositories" })
 @EnableTransactionManagement
 @EnableWebMvc
 @RestController
@@ -22,6 +22,7 @@ public class ControleestoqueApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ControleestoqueApplication.class, args);
+
 	}
 
 }

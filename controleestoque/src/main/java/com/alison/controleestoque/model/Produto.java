@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "produto")
@@ -19,12 +20,16 @@ public class Produto {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_produto")
 	private Long id;
 
+	@NotNull(message = "Insira o nome!")
 	private String nome;
 
+	@NotNull(message = "Insira uma descrição!")
 	private String descricao;
 
+	@NotNull(message = "Insira o preço!")
 	private BigDecimal preco;
 
+	@NotNull(message = "Insira a quantidade!")
 	private Integer quantidade;
 
 	public Long getId() {
