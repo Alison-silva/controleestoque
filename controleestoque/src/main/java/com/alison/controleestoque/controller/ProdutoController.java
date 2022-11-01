@@ -52,7 +52,7 @@ public class ProdutoController {
 		return "Deletado com sucesso!";		
 	}
 	
-	@GetMapping(value = "listarProduto")
+	@GetMapping(value = "listarProduto", produces = "application/json")
 	@ResponseBody
 	public ResponseEntity<List<Produto>> listarProduto(){
 		List<Produto> prod = produtoRepository.findAll();
