@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,9 @@ public class UsuarioController {
 	@PostMapping(value = "salvaUsuario")
 	@ResponseBody
 	public ResponseEntity<Usuario> salvaUsuario(@RequestBody @Valid Usuario usuario){
+		
+		String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
+		usuario.setSenha(senhacriptografada);
 		Usuario usua = usuarioRepository.save(usuario);
 		return new ResponseEntity<Usuario>(usua, HttpStatus.OK);
 	}
@@ -41,6 +45,14 @@ public class UsuarioController {
 		if(usuario.getId() == null) {
 			return new ResponseEntity<String>("Id não foi informado!", HttpStatus.OK);
 		}
+		
+		Usuario userTemporario = usuarioRepository.findById(usuario.getId()).get();
+		
+		if (!userTemporario.getSenha().equals(usuario.getSenha())) { 
+			String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
+			usuario.setSenha(senhacriptografada);
+		}
+		
 		Usuario usua = usuarioRepository.saveAndFlush(usuario);
 		return new ResponseEntity<Usuario>(usua, HttpStatus.OK);
 	}

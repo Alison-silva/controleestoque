@@ -39,6 +39,8 @@ public class JWTTokenAutenticacaoService {
 		String token = TOKEN_PREFIX + " " + JWT;
 
 		response.addHeader(HEADER_STRING, token);
+		
+		liberacaoCors(response);
 
 		response.getWriter().write("{\"Authorization\": \"" + token + "\"}");
 
@@ -51,8 +53,10 @@ public class JWTTokenAutenticacaoService {
 		
 		if(token != null) {
 			
+			String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
+			
 			String user = Jwts.parser().setSigningKey(SECRET)
-					.parseClaimsJws(token.replace(TOKEN_PREFIX, "")) 
+					.parseClaimsJws(tokenLimpo)
 					.getBody().getSubject();
 			
 			if (user != null) {
@@ -66,6 +70,27 @@ public class JWTTokenAutenticacaoService {
 				}
 			}
 		}
+		liberacaoCors(response);
 		return null;
+	}
+	
+	private void liberacaoCors(HttpServletResponse response) {
+
+		if (response.getHeader("Access-Control-Allow-Origin") == null) {
+			response.addHeader("Access-Control-Allow-Origin", "*");
+		}
+		
+		if (response.getHeader("Access-Control-Allow-Headers") == null) {
+			response.addHeader("Access-Control-Allow-Headers", "*");
+		}
+		
+		
+		if (response.getHeader("Access-Control-Request-Headers") == null) {
+			response.addHeader("Access-Control-Request-Headers", "*");
+		}
+		
+		if(response.getHeader("Access-Control-Allow-Methods") == null) {
+			response.addHeader("Access-Control-Allow-Methods", "*");
+		}
 	}
 }
