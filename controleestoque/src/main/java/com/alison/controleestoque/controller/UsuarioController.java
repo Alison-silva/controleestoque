@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alison.controleestoque.model.Usuario;
 import com.alison.controleestoque.repositories.UsuarioRepository;
+import com.alson.controleestoque.service.ImplementacaoUserDetailsService;
 
 @RestController
 @RequestMapping(value = "/usuario")
@@ -27,6 +28,9 @@ public class UsuarioController {
 	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private ImplementacaoUserDetailsService implementacaoUserDetailsService;
 
 	
 	@PostMapping(value = "salvaUsuario")
@@ -36,6 +40,7 @@ public class UsuarioController {
 		String senhacriptografada = new BCryptPasswordEncoder().encode(usuario.getSenha());
 		usuario.setSenha(senhacriptografada);
 		Usuario usua = usuarioRepository.save(usuario);
+		implementacaoUserDetailsService.insereAcessoPadrao(usua.getId());
 		return new ResponseEntity<Usuario>(usua, HttpStatus.OK);
 	}
 	
