@@ -1,5 +1,6 @@
 package com.alison.controleestoque.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +57,7 @@ public class Usuario implements UserDetails {
 	table = "usuario", unique = false, foreignKey = @ForeignKey(name = "usuario_fk", value = ConstraintMode.CONSTRAINT)), 
 	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id", table = "role", unique = false, updatable = false, 
 	foreignKey = @ForeignKey(name = "role_fk", value = ConstraintMode.CONSTRAINT)))
-	private List<Role> roles;
+	private List<Role> roles = new ArrayList<Role>();
 
 	public Long getId() {
 		return id;

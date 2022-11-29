@@ -1,10 +1,14 @@
 package com.alison.controleestoque.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alison.controleestoque.model.Fornecedor;
+import com.alison.controleestoque.model.Usuario;
 import com.alison.controleestoque.repositories.FornecedorRepository;
 
 @RestController
@@ -54,11 +59,71 @@ public class FornecedorController {
 	
 	@GetMapping(value = "listarFornecedor", produces = "application/json")
 	@ResponseBody
-	public ResponseEntity<List<Fornecedor>> listarFornecedor(){
-		List<Fornecedor> forn = fornecedorRepository.findAll();
-		return new ResponseEntity<List<Fornecedor>>(forn, HttpStatus.OK);
+	public ResponseEntity<Page<Fornecedor>> listarFornecedor(){
+		PageRequest page = PageRequest.of(0, 5, Sort.by("razaoSocial"));
+		Page<Fornecedor> forn = fornecedorRepository.findAll(page);
+		return new ResponseEntity<Page<Fornecedor>>(forn, HttpStatus.OK);
 	}
 	
+	
+	@GetMapping(value = "listarFornecedor/page/{pagina}", produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<Page<Fornecedor>> listarFornecedorPagina(@PathVariable("pagina") int pagina){
+		
+		PageRequest page = PageRequest.of(pagina, 5, Sort.by("razaoSocial"));
+		
+		Page<Fornecedor> list = fornecedorRepository.findAll(page);
+		
+		return new ResponseEntity<Page<Fornecedor>>(list, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "listarFornecedorPorRazao/{razaoSocial}", produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<Page<Fornecedor>> listarFornecedorPorRazao(@PathVariable("razaoSocial") String razaoSocial){
+		
+		PageRequest pageRequest = null;
+		Page<Fornecedor> list = null;
+
+		if (razaoSocial == null || (razaoSocial != null && razaoSocial.trim().isEmpty())
+				|| razaoSocial.equalsIgnoreCase("undefined")) {/* Não informou nome */
+
+			pageRequest = PageRequest.of(0, 5, Sort.by("razaoSocial"));
+			list = fornecedorRepository.findAll(pageRequest);
+		} else {
+			pageRequest = PageRequest.of(0, 5, Sort.by("razaoSocial"));
+			list = fornecedorRepository.findFornByRazaoSocialPage(razaoSocial, pageRequest);
+		}
+
+		return new ResponseEntity<Page<Fornecedor>>(list, HttpStatus.OK);
+	}
+	
+	
+	@GetMapping(value = "listarFornecedorPorRazaoPage/{razaoSocial}/page/{page}", produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<Page<Fornecedor>> listarFornecedorPorRazaoPage(@PathVariable("razaoSocial") String razaoSocial, @PathVariable("page") int page){
+		
+		PageRequest pageRequest = null;
+		Page<Fornecedor> list = null;
+
+		if (razaoSocial == null || (razaoSocial != null && razaoSocial.trim().isEmpty())
+				|| razaoSocial.equalsIgnoreCase("undefined")) {/* Não informou nome */
+
+			pageRequest = PageRequest.of(page, 5, Sort.by("razaoSocial"));
+			list = fornecedorRepository.findAll(pageRequest);
+		} else {
+			pageRequest = PageRequest.of(page, 5, Sort.by("razaoSocial"));
+			list = fornecedorRepository.findFornByRazaoSocialPage(razaoSocial, pageRequest);
+		}
+
+		return new ResponseEntity<Page<Fornecedor>>(list, HttpStatus.OK);
+	}
+	
+	
+	@GetMapping(value = "buscaPorId/{id}", produces = "application/json")
+	public ResponseEntity<Fornecedor> buscarPorId(@PathVariable (value = "id") Long id){
+		Optional<Fornecedor> fornecedor = fornecedorRepository.findById(id);
+		return new ResponseEntity<Fornecedor>(fornecedor.get(), HttpStatus.OK);
+	}
 	
 }
 

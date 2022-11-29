@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -17,7 +19,6 @@ import javax.validation.constraints.NotNull;
 @SequenceGenerator(name = "seq_produto", sequenceName = "seq_produto", allocationSize = 1, initialValue = 1)
 public class Produto implements Serializable {
 
-	
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -35,6 +36,17 @@ public class Produto implements Serializable {
 
 	@NotNull(message = "Insira a quantidade!")
 	private Integer quantidade;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Fornecedor fornecedor;
+
+	public Fornecedor getFornecedor() {
+		return fornecedor;
+	}
+
+	public void setFornecedor(Fornecedor fornecedor) {
+		this.fornecedor = fornecedor;
+	}
 
 	public Long getId() {
 		return id;

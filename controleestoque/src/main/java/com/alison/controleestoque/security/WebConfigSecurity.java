@@ -1,4 +1,4 @@
-package com.alson.controleestoque.security;
+package com.alison.controleestoque.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.alson.controleestoque.service.ImplementacaoUserDetailsService;
+import com.alison.controleestoque.service.ImplementacaoUserDetailsService;
 
 @Configuration
 @EnableWebSecurity

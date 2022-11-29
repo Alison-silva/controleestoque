@@ -1,10 +1,14 @@
 package com.alison.controleestoque.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alison.controleestoque.model.Usuario;
 import com.alison.controleestoque.repositories.UsuarioRepository;
-import com.alson.controleestoque.service.ImplementacaoUserDetailsService;
+import com.alison.controleestoque.service.ImplementacaoUserDetailsService;
 
 @RestController
 @RequestMapping(value = "/usuario")
@@ -44,12 +48,10 @@ public class UsuarioController {
 		return new ResponseEntity<Usuario>(usua, HttpStatus.OK);
 	}
 	
-	@PutMapping(value = "atualizaUsuario")
+	@PutMapping(value = "atualizaUsuario", produces = "application/json")
 	@ResponseBody
-	public ResponseEntity<?> atualizaUsuario(@RequestBody Usuario usuario){
-		if(usuario.getId() == null) {
-			return new ResponseEntity<String>("Id não foi informado!", HttpStatus.OK);
-		}
+	public ResponseEntity<Usuario> atualizaUsuario(@RequestBody Usuario usuario){
+		
 		
 		Usuario userTemporario = usuarioRepository.findById(usuario.getId()).get();
 		
@@ -58,7 +60,8 @@ public class UsuarioController {
 			usuario.setSenha(senhacriptografada);
 		}
 		
-		Usuario usua = usuarioRepository.saveAndFlush(usuario);
+		Usuario usua = usuarioRepository.save(usuario);
+		
 		return new ResponseEntity<Usuario>(usua, HttpStatus.OK);
 	}
 	
@@ -71,12 +74,89 @@ public class UsuarioController {
 	
 	@GetMapping(value = "listarUsuario", produces = "application/json")
 	@ResponseBody
-	public ResponseEntity<List<Usuario>> listarUsuario(){
-		List<Usuario> usua = usuarioRepository.findAll();
-		return new ResponseEntity<List<Usuario>>(usua, HttpStatus.OK);
+	public ResponseEntity<Page<Usuario>> listarUsuario(){
+		
+		PageRequest page = PageRequest.of(0, 5, Sort.by("nome"));
+		
+		Page<Usuario> list = usuarioRepository.findAll(page);
+		
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "listarUsuario/page/{pagina}", produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<Page<Usuario>> listarUsuarioPagina(@PathVariable("pagina") int pagina){
+		
+		PageRequest page = PageRequest.of(pagina, 5, Sort.by("nome"));
+		
+		Page<Usuario> list = usuarioRepository.findAll(page);
+		
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
+	
+	@GetMapping(value = "listarUsuarioPorNome/{nome}", produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<Page<Usuario>> listarUsuarioPorNome(@PathVariable("nome") String nome){
+		
+		PageRequest pageRequest = null;
+		Page<Usuario> list = null;
+
+		if (nome == null || (nome != null && nome.trim().isEmpty())
+				|| nome.equalsIgnoreCase("undefined")) {/* Não informou nome */
+
+			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+			list = usuarioRepository.findAll(pageRequest);
+		} else {
+			pageRequest = PageRequest.of(0, 5, Sort.by("nome"));
+			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
+		}
+
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "listarUsuarioPorNomePage/{nome}/page/{page}", produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<Page<Usuario>> listarUsuarioPorNomePage(@PathVariable("nome") String nome, @PathVariable("page") int page){
+		
+		PageRequest pageRequest = null;
+		Page<Usuario> list = null;
+
+		if (nome == null || (nome != null && nome.trim().isEmpty())
+				|| nome.equalsIgnoreCase("undefined")) {/* Não informou nome */
+
+			pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
+			list = usuarioRepository.findAll(pageRequest);
+		} else {
+			pageRequest = PageRequest.of(page, 5, Sort.by("nome"));
+			list = usuarioRepository.findUserByNamePage(nome, pageRequest);
+		}
+
+		return new ResponseEntity<Page<Usuario>>(list, HttpStatus.OK);
+	}
+	
+	
+	
+	@GetMapping(value = "buscaPorId/{id}", produces = "application/json")
+	public ResponseEntity<Usuario> buscarPorId(@PathVariable (value = "id") Long id){
+		Optional<Usuario> usuario = usuarioRepository.findById(id);
+		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
 	}
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
