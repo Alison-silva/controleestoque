@@ -125,6 +125,13 @@ public class FornecedorController {
 		return new ResponseEntity<Fornecedor>(fornecedor.get(), HttpStatus.OK);
 	}
 	
+	
+	@GetMapping(value = "listaDeFornecedores", produces = "application/json")
+	public ResponseEntity<List<Fornecedor>> fornecedor() {
+		List<Fornecedor> lista = fornecedorRepository.findAll();
+		return new ResponseEntity<List<Fornecedor>>(lista, HttpStatus.OK);
+	}
+	
 }
 
 

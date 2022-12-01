@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -29,6 +30,7 @@ public class Produto implements Serializable {
 	private String nome;
 
 	@NotNull(message = "Insira uma descrição!")
+	@Column(columnDefinition = "text")
 	private String descricao;
 
 	@NotNull(message = "Insira o preço!")
