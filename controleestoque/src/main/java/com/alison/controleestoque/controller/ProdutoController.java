@@ -1,6 +1,7 @@
 package com.alison.controleestoque.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alison.controleestoque.model.ProdChart;
 import com.alison.controleestoque.model.Produto;
 import com.alison.controleestoque.repositories.ProdutoRepository;
 import com.alison.controleestoque.service.ServiceRelatorio;
@@ -33,9 +36,12 @@ public class ProdutoController {
 
 	@Autowired
 	private ProdutoRepository produtoRepository;
-	
+
 	@Autowired
 	private ServiceRelatorio serviceRelatorio;
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@PostMapping(value = "salvaProduto")
 	@ResponseBody
@@ -117,23 +123,43 @@ public class ProdutoController {
 
 		return new ResponseEntity<Page<Produto>>(list, HttpStatus.OK);
 	}
-	
-	@GetMapping(value="/relatorio", produces = "application/text")
+
+	@GetMapping(value = "/relatorio", produces = "application/text")
 	public ResponseEntity<String> downloadRelatorio(HttpServletRequest request) throws Exception {
-		byte[] pdf = serviceRelatorio.gerarRelatorio("relatorio-produtos-estoque", new HashMap(), 
+		byte[] pdf = serviceRelatorio.gerarRelatorio("relatorio-produtos-estoque", new HashMap(),
 				request.getServletContext());
-		
+
 		String base64Pdf = "data:application/pdf;base64," + Base64.encodeBase64String(pdf);
-		
+
 		return new ResponseEntity<String>(base64Pdf, HttpStatus.OK);
-		
+
 	}
-	
 
 	@GetMapping(value = "buscaPorId/{id}", produces = "application/json")
 	public ResponseEntity<Produto> buscarPorId(@PathVariable(value = "id") Long id) {
 		Optional<Produto> produto = produtoRepository.findById(id);
 		return new ResponseEntity<Produto>(produto.get(), HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/grafico", produces = "application/json")
+	public ResponseEntity<ProdChart> grafico() {
+
+		ProdChart prodChart = new ProdChart();
+
+		List<String> resultado = jdbcTemplate.queryForList(
+				"select array_agg(nome) from produto where quantidade > 0 and nome <> '' union all select cast(array_agg(quantidade) as character varying[]) from produto where quantidade > 0 and nome <> ''",
+				String.class);
+
+		if (!resultado.isEmpty()) {
+			String nomes = resultado.get(0).replaceAll("\\{", "").replaceAll("\\}", "");
+			String qtd = resultado.get(1).replaceAll("\\{", "").replaceAll("\\}", "");
+
+			prodChart.setNome(nomes);
+			prodChart.setQuantidade(qtd);
+		}
+
+		return new ResponseEntity<ProdChart>(prodChart, HttpStatus.OK);
+
 	}
 
 }
