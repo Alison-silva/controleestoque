@@ -149,10 +149,15 @@ public class ProdutoController {
 		List<String> resultado = jdbcTemplate.queryForList(
 				"select array_agg(nome) from produto where quantidade > 0 and nome <> '' union all select cast(array_agg(quantidade) as character varying[]) from produto where quantidade > 0 and nome <> ''",
 				String.class);
+		
+		System.out.println(resultado);
 
 		if (!resultado.isEmpty()) {
 			String nomes = resultado.get(0).replaceAll("\\{", "").replaceAll("\\}", "");
 			String qtd = resultado.get(1).replaceAll("\\{", "").replaceAll("\\}", "");
+			
+			System.out.println(nomes);
+			System.out.println(qtd);
 
 			prodChart.setNome(nomes);
 			prodChart.setQuantidade(qtd);
